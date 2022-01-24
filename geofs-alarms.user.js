@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GeoFS-Alarms
 // @namespace    https://github.com/fengshuo2004/geofs-alarms
-// @version      0.1.3-rc.0
+// @version      0.1.3-rc.1
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
 // @author       PEK-97, Supreme1707, Winston_Sung
 // @match        https://www.geo-fs.com/geofs.php*
@@ -92,7 +92,10 @@
             let hasAltTooLow = (
                 unsafeWindow.geofs.animation.values.kias > 120 &&
                 unsafeWindow.geofs.relativeAltitude < 750 &&
-                ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
+                (
+                    unsafeWindow.geofs.relativeAltitude <= 150 ||
+                    ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
+                )
             );
             if (hasAltTooLow && !prevAltTooLow){
                 terainPullUpClacker.play();
