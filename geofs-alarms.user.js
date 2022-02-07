@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GeoFS-Alarms
 // @namespace    https://github.com/fengshuo2004/geofs-alarms
-// @version      0.1.3-rc.3
+// @version      0.1.3-rc.4
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
 // @author       PEK-97, Supreme1707, Winston_Sung
 // @match        https://*.geo-fs.com/geofs.php*
@@ -57,17 +57,13 @@
         let prevStalled = false;
         unsafeWindow.ui.hud.stall.setVisOld = unsafeWindow.ui.hud.stall.setVisibility;
         unsafeWindow.ui.hud.stall.setVisibility = function (a) {
-            if (unsafeWindow.geofs.isPaused() === true || !unsafeWindow.audio.on) {
-                if (a && !prevStalled) {
-                    stickShake.play();
-                } else {
-                    stickShake.pause();
-                }
-                prevStalled = a;
-                this.setVisOld(a);
+            if (a && (!prevStalled || unsafeWindow.geofs.isPaused() === true || !unsafeWindow.audio.on)) {
+                stickShake.play();
             } else {
                 stickShake.pause();
             }
+            prevStalled = a;
+            this.setVisOld(a);
         }
         // monkey-patch the setAnimationValue method
         let prevAudioOn = false;
@@ -91,7 +87,7 @@
                     ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
                 )
             );
-            if (hasAudioOn && !prevAudioOn) {
+            if (hasAudioOn) {
                 if (hasOverBankedAng && (!prevOverBankedAng || !prevAudioOn)) {
                     bankangleClacker.play();
                 } else if (!hasOverBankedAng && prevOverBankedAng) {
