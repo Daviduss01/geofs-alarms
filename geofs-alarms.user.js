@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GeoFS-Alarms
 // @namespace    https://github.com/fengshuo2004/geofs-alarms
-// @version      0.1.3-rc.1
+// @version      0.1.3-rc.2
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
 // @author       PEK-97, Supreme1707, Winston_Sung
 // @match        https://www.geo-fs.com/geofs.php*
@@ -53,56 +53,63 @@
         }
     ,500);
     function main(){
-        // monkey-patch the stall.setVisibility method
-        let prevStalled = false;
-        unsafeWindow.ui.hud.stall.setVisOld = unsafeWindow.ui.hud.stall.setVisibility;
-        unsafeWindow.ui.hud.stall.setVisibility = function (a) {
-            if (a) {
-                stickShake.play();
-            } else if (prevStalled) {
-                stickShake.pause();
+        if (unsafeWindow.geofs.isPaused() || !unsafeWindow.audio.on) {
+            stickShake.pause();
+            bankangleClacker.pause();
+            overspeedClacker.pause();
+            terainPullUpClacker.pause();
+        } else {
+            // monkey-patch the stall.setVisibility method
+            let prevStalled = false;
+            unsafeWindow.ui.hud.stall.setVisOld = unsafeWindow.ui.hud.stall.setVisibility;
+            unsafeWindow.ui.hud.stall.setVisibility = function (a) {
+                if (a) {
+                    stickShake.play();
+                } else if (prevStalled) {
+                    stickShake.pause();
+                }
+                prevStalled = a;
+                this.setVisOld(a);
             }
-            prevStalled = a;
-            this.setVisOld(a);
-        }
-        // monkey-patch the setAnimationValue method
-        let prevOverBankedAng = false;
-        let prevOversped = false;
-        let prevAltTooLow = false;
-        unsafeWindow.flight.setAniValOld = unsafeWindow.flight.setAnimationValues;
-        unsafeWindow.flight.setAnimationValues = function(a) {
-            this.setAniValOld(a);
-            // over-banked angle
-            let hasOverBankedAng = (unsafeWindow.geofs.animation.values.aroll > 35 || unsafeWindow.geofs.animation.values.aroll < -35);
-            if (hasOverBankedAng && !prevOverBankedAng){
-                bankangleClacker.play();
-            } else if (!hasOverBankedAng && prevOverBankedAng){
-                bankangleClacker.pause();
+            // monkey-patch the setAnimationValue method
+            let prevOverBankedAng = false;
+            let prevOversped = false;
+            let prevAltTooLow = false;
+            unsafeWindow.flight.setAniValOld = unsafeWindow.flight.setAnimationValues;
+            unsafeWindow.flight.setAnimationValues = function(a) {
+                this.setAniValOld(a);
+                // over-banked angle
+                let hasOverBankedAng = (unsafeWindow.geofs.animation.values.aroll > 35 || unsafeWindow.geofs.animation.values.aroll < -35);
+                if (hasOverBankedAng && !prevOverBankedAng){
+                    bankangleClacker.play();
+                } else if (!hasOverBankedAng && prevOverBankedAng){
+                    bankangleClacker.pause();
+                }
+                prevOverBankedAng = hasOverBankedAng;
+                // overspeed
+                let hasOversped = unsafeWindow.geofs.animation.values.kias >= 350;
+                if (hasOversped && !prevOversped){
+                    overspeedClacker.play();
+                } else if (!hasOversped && prevOversped){
+                    overspeedClacker.pause();
+                }
+                prevOversped = hasOversped;
+                // altitude too low
+                let hasAltTooLow = (
+                    unsafeWindow.geofs.animation.values.kias > 120 &&
+                    unsafeWindow.geofs.relativeAltitude < 750 &&
+                    (
+                        unsafeWindow.geofs.relativeAltitude <= 150 ||
+                        ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
+                    )
+                );
+                if (hasAltTooLow && !prevAltTooLow){
+                    terainPullUpClacker.play();
+                } else if (!hasAltTooLow && prevAltTooLow){
+                    terainPullUpClacker.pause();
+                }
+                prevAltTooLow = hasAltTooLow;
             }
-            prevOverBankedAng = hasOverBankedAng;
-            // overspeed
-            let hasOversped = unsafeWindow.geofs.animation.values.kias >= 350;
-            if (hasOversped && !prevOversped){
-                overspeedClacker.play();
-            } else if (!hasOversped && prevOversped){
-                overspeedClacker.pause();
-            }
-            prevOversped = hasOversped;
-            // altitude too low
-            let hasAltTooLow = (
-                unsafeWindow.geofs.animation.values.kias > 120 &&
-                unsafeWindow.geofs.relativeAltitude < 750 &&
-                (
-                    unsafeWindow.geofs.relativeAltitude <= 150 ||
-                    ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
-                )
-            );
-            if (hasAltTooLow && !prevAltTooLow){
-                terainPullUpClacker.play();
-            } else if (!hasAltTooLow && prevAltTooLow){
-                terainPullUpClacker.pause();
-            }
-            prevAltTooLow = hasAltTooLow;
         }
     }
 })();
