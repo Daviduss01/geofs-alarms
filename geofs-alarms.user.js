@@ -1,15 +1,16 @@
 // ==UserScript==
 // @name         GeoFS-Alarms
-// @namespace    https://github.com/fengshuo2004/geofs-alarms
-// @version      0.1.3-rc.4
+// @namespace    https://github.com/Daviduss01/geofs-alarms
+// @version      0.1.4
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
-// @author       PEK-97, Supreme1707, Winston_Sung
+// @author       PEK-97, Supreme1707, Winston_Sung, Daviduss01
 // @match        https://*.geo-fs.com/geofs.php*
 // @grant        GM.getResourceUrl
-// @resource     stall https://github.com/fengshuo2004/geofs-alarms/raw/master/stall.ogg
-// @resource     bankangle https://github.com/fengshuo2004/geofs-alarms/raw/master/bankangle.ogg
-// @resource     overspeed https://github.com/fengshuo2004/geofs-alarms/raw/master/overspeed.ogg
-// @resource     terain_pull_up https://github.com/Supreme1707/geofs-alarms/raw/master/terain_pull_up.mp3
+// @resource     stall https://github.com/Daviduss01/geofs-alarms/raw/master/stall.ogg
+// @resource     bankangle https://github.com/Daviduss01/geofs-alarms/raw/master/bankangle.ogg
+// @resource     overspeed https://github.com/Daviduss01/geofs-alarms/raw/master/overspeed.ogg
+// @resource     terain_pull_up https://github.com/Daviduss01/geofs-alarms/raw/master/terain_pull_up.mp3
+// @resource     sinkrate_pull_up
 // ==/UserScript==
 
 (function () {
@@ -43,6 +44,13 @@
             terainPullUpClacker.loop = true;
         }
     );
+        let sinkratePullUpClacker;
+    GM.getResourceUrl("sinkrate_pull_up").then(
+        (data) => {
+            sinkratePullUpClacker = new Audio(data);
+            sinkratePullUpClacker.loop = true;
+        }
+    );
     // wait until flight sim is fully loaded
     let itv = setInterval(
         function() {
@@ -70,6 +78,7 @@
         let prevOverBankedAng = false;
         let prevOversped = false;
         let prevAltTooLow = false;
+        let prevSinkRate = false;
         unsafeWindow.flight.setAniValOld = unsafeWindow.flight.setAnimationValues;
         unsafeWindow.flight.setAnimationValues = function(a) {
             this.setAniValOld(a);
@@ -80,6 +89,16 @@
             let hasOverBankedAng = (unsafeWindow.geofs.animation.values.aroll > 35 || unsafeWindow.geofs.animation.values.aroll < -35);
             let hasOversped = unsafeWindow.geofs.animation.values.kias >= 350;
             let hasAltTooLow = (
+                unsafeWindow.geofs.animation.values.climbrate < -3000 &&
+                unsafeWindow.geofs.animation.values.climbrate > -6000 &&
+                unsafeWindow.geofs.animation.values.kias > 120 &&
+                unsafeWindow.geofs.relativeAltitude < 750 &&
+                (
+                    unsafeWindow.geofs.relativeAltitude <= 150 ||
+                    ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
+                )
+             let hasSinkRate = (
+                unsafeWindow.geofs.animation.values.climbrate < -6000 &&
                 unsafeWindow.geofs.animation.values.kias > 120 &&
                 unsafeWindow.geofs.relativeAltitude < 750 &&
                 (
