@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         GeoFS-Alarms
 // @namespace    https://github.com/Daviduss01/geofs-alarms
-// @version      0.1.4
+// @version      0.1.4.1
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
 // @author       PEK-97, Supreme1707, Winston_Sung, Daviduss01
 // @match        https://*.geo-fs.com/geofs.php*
@@ -10,7 +10,7 @@
 // @resource     bankangle https://github.com/Daviduss01/geofs-alarms/raw/master/bankangle.ogg
 // @resource     overspeed https://github.com/Daviduss01/geofs-alarms/raw/master/overspeed.ogg
 // @resource     terain_pull_up https://github.com/Daviduss01/geofs-alarms/raw/master/terain_pull_up.mp3
-// @resource     sinkrate_pull_up https://github.com/Daviduss01/geofs-alarms/blob/master/sinkrate_pull_up.mp3
+// @resource     sinkrate_pull_up https://github.com/Daviduss01/geofs-alarms/raw/master/sinkrate_pull_up.mp3
 // ==/UserScript==
 
 (function () {
@@ -44,7 +44,7 @@
             terainPullUpClacker.loop = true;
         }
     );
-        let sinkratePullUpClacker;
+    let sinkratePullUpClacker;
     GM.getResourceUrl("sinkrate_pull_up").then(
         (data) => {
             sinkratePullUpClacker = new Audio(data);
@@ -59,7 +59,7 @@
                 clearInterval(itv);
             }
         }
-    ,500);
+        ,500);
     function main() {
         // monkey-patch the stall.setVisibility method
         let prevStalled = false;
@@ -90,23 +90,12 @@
             let hasOversped = unsafeWindow.geofs.animation.values.kias >= 350;
             let hasAltTooLow = (
                 unsafeWindow.geofs.animation.values.climbrate < -3000 &&
-                unsafeWindow.geofs.animation.values.climbrate > -6000 &&
-                unsafeWindow.geofs.animation.values.kias > 120 &&
-                unsafeWindow.geofs.relativeAltitude < 750 &&
-                (
-                    unsafeWindow.geofs.relativeAltitude <= 150 ||
-                    ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
-                )
-             );
-             let hasSinkRate = (
-                unsafeWindow.geofs.animation.values.climbrate < -6000 &&
-                unsafeWindow.geofs.animation.values.kias > 120 &&
-                unsafeWindow.geofs.relativeAltitude < 750 &&
-                (
-                    unsafeWindow.geofs.relativeAltitude <= 150 ||
-                    ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
-                )
-            );
+                unsafeWindow.geofs.animation.values.climbrate > -5000 &&
+                unsafeWindow.geofs.animation.values.kias > 1800 &&
+                unsafeWindow.geofs.relativeAltitude < 2000
+                );
+            let hasSinkRate = (unsafeWindow.geofs.animation.values.climbrate < -8000 &&
+                               unsafeWindow.geofs.animation.values.kias > 225);
             if (hasAudioOn) {
                 if (hasOverBankedAng && (!prevOverBankedAng || !prevAudioOn)) {
                     bankangleClacker.play();
@@ -122,14 +111,14 @@
                     terainPullUpClacker.play();
                 } else if (!hasAltTooLow && prevAltTooLow){
                     terainPullUpClacker.pause();
-                    terainPullUpClacker.reset();
                 }
                 if (hasSinkRate && (!prevSinkRate || !prevAudioOn)){
-                    sinkratePullUpClacker.play()
+                    sinkratePullUpClacker.play();
                 } else if (!hasSinkRate && prevSinkRate){
-                    sinkratePullUpClacker.pause()
+                    sinkratePullUpClacker.pause();
                 }
             } else if (!hasAudioOn && prevAudioOn) {
+                stickShake.pause();
                 bankangleClacker.pause();
                 overspeedClacker.pause();
                 terainPullUpClacker.pause();
