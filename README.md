@@ -24,6 +24,7 @@ Updated by Daviduss01 in 2023.
 | Overspeed        | IAS ≥ 350kts            | Boeing         |
 | Bank Angle       | Roll ≥ 35°              | Boeing         |
 | Terrain, pull up | Descend rate ≥ 3000     | Boeing         |
+| Sinkrate, pull up| Descend rate ≥ 3000     | Boeing         |
 
 ## Known issues
 
