@@ -97,6 +97,7 @@
                     unsafeWindow.geofs.relativeAltitude <= 150 ||
                     ((unsafeWindow.geofs.animation.values.kias - 120) * 5) < (unsafeWindow.geofs.relativeAltitude - 150)
                 )
+             );
              let hasSinkRate = (
                 unsafeWindow.geofs.animation.values.climbrate < -6000 &&
                 unsafeWindow.geofs.animation.values.kias > 120 &&
@@ -121,16 +122,23 @@
                     terainPullUpClacker.play();
                 } else if (!hasAltTooLow && prevAltTooLow){
                     terainPullUpClacker.pause();
+                    terainPullUpClacker.reset();
                 }
+                if (hasSinkRate && (!prevSinkRate || !prevAudioOn)){
+                    sinkratePullUpClacker.play()
+                } else if (!hasSinkRate && prevSinkRate){
+                    sinkratePullUpClacker.pause()
             } else if (!hasAudioOn && prevAudioOn) {
                 bankangleClacker.pause();
                 overspeedClacker.pause();
                 terainPullUpClacker.pause();
+                sinkratePullUpClacker.pause();
             }
             prevAudioOn = hasAudioOn;
             prevOverBankedAng = hasOverBankedAng;
             prevOversped = hasOversped;
             prevAltTooLow = hasAltTooLow;
+            prevSinkRate = hasSinkRate;
         }
     }
 })();
