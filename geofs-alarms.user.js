@@ -128,6 +128,7 @@
                     sinkratePullUpClacker.play()
                 } else if (!hasSinkRate && prevSinkRate){
                     sinkratePullUpClacker.pause()
+                }
             } else if (!hasAudioOn && prevAudioOn) {
                 bankangleClacker.pause();
                 overspeedClacker.pause();
@@ -141,4 +142,4 @@
             prevSinkRate = hasSinkRate;
         }
     }
-}();
+})();
