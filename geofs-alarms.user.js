@@ -10,7 +10,7 @@
 // @resource     bankangle https://github.com/Daviduss01/geofs-alarms/raw/master/bankangle.ogg
 // @resource     overspeed https://github.com/Daviduss01/geofs-alarms/raw/master/overspeed.ogg
 // @resource     terain_pull_up https://github.com/Daviduss01/geofs-alarms/raw/master/terain_pull_up.mp3
-// @resource     sinkrate_pull_up
+// @resource     sinkrate_pull_up https://github.com/Daviduss01/geofs-alarms/blob/master/sinkrate_pull_up.mp3
 // ==/UserScript==
 
 (function () {
