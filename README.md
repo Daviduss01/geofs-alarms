@@ -1,12 +1,13 @@
 # geofs-alarms
 
-[Install GeoFS-Alarms](https://github.com/fengshuo2004/geofs-alarms/raw/master/geofs-alarms.user.js) | [Report a bug](https://github.com/fengshuo2004/geofs-alarms/issues) | [Talk on Discord](https://discord.gg/YAfH5Z4)
+[Install GeoFS-Alarms](https://github.com/Daviduss01/geofs-alarms/raw/master/geofs-alarms.user.js) | [Report a bug](https://github.com/Daviduss01/geofs-alarms/issues) |
 
 An userscript addon for GeoFS. Enhance your flight experience by adding cockpit alarms and callouts (GPWS, Radio Altimeter) to the flight simulator.
 
 ![VRA Logo](vra_logo.png)
 
-Written by PEK-97 (aka David Feng) in 2020
+Written by PEK-97 (aka David Feng) in 2020.
+Updated by Daviduss01 in 2023.
 
 ## Installation
 
@@ -16,16 +17,15 @@ Written by PEK-97 (aka David Feng) in 2020
 
 ## Default configuration
 
-> More will be inplemented as developement progresses
 
-| Alarm Name |   Trigger on   | Sound Variants |
-| :--------- | :------------: | :------------- |
-| Stall      | Sim Detection  | Boeing         |
-| Overspeed  |  IAS ≥ 350kts  | Boeing         |
-| Bank Angle |   Roll ≥ 35°   | Boeing         |
+|    Alarm Name    |        Trigger on       | Sound Variants |
+| :--------------: | :---------------------: | :------------: |
+| Stall            | Sim Detection           | Boeing         |
+| Overspeed        | IAS ≥ 350kts            | Boeing         |
+| Bank Angle       | Roll ≥ 35°              | Boeing         |
+| Terrain, pull up | Descend rate ≥ 3000     | Boeing         |
 
 ## Known issues
 
-Below is a list of bugs already known to the developer and are being fixed:
 
-- Simulator is paused but the alarms keeps playing
+- None yet.
