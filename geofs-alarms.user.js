@@ -2,7 +2,7 @@
 // @name         GeoFS-Alarms
 // @icon         https://www.geo-fs.com/favicon.ico
 // @namespace    https://github.com/Daviduss01/geofs-alarms
-// @version      0.1.7
+// @version      0.1.8
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
 // @author       Daviduss01, PEK-97, python-coding-404, Supreme1707, Winston_Sung
 // @match        https://*.geo-fs.com/geofs.php*
@@ -94,7 +94,7 @@
             let hasAltTooLow = (
                 unsafeWindow.geofs.animation.values.climbrate < -3000 &&
                 unsafeWindow.geofs.animation.values.climbrate > -5000 &&
-                unsafeWindow.geofs.animation.values.kias > 1800 &&
+                unsafeWindow.geofs.animation.values.kias > 180 &&
                 unsafeWindow.geofs.relativeAltitude < 2000
             );
             let hasOverbankedAng = (
