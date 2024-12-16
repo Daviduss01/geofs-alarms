@@ -2,7 +2,7 @@
 // @name         GeoFS-Alarms
 // @icon         https://www.geo-fs.com/favicon.ico
 // @namespace    https://github.com/Daviduss01/geofs-alarms
-// @version      0.1.9
+// @version      0.1.10
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
 // @author       Daviduss01, PEK-97, python-coding-404, Supreme1707, Winston_Sung
 // @match        https://*.geo-fs.com/geofs.php*
@@ -101,7 +101,10 @@
             );
             let hasOversped = unsafeWindow.geofs.animation.values.kias >= 350;
             let hasSinkRate = false;
-            let hasStalled = unsafeWindow.geofs.aircraft.instance.stalling;
+            let hasStalled = (
+                unsafeWindow.geofs.aircraft.instance.stalling &&
+                !unsafeWindow.geofs.aircraft.instance.groundContact
+            );
 
             // https://commons.wikimedia.org/wiki/File:FAA_excessive_sink_rate_graph.svg
             if (climbrate < -1200 && kias > 180) {
