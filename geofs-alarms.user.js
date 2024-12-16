@@ -2,7 +2,7 @@
 // @name         GeoFS-Alarms
 // @icon         https://www.geo-fs.com/favicon.ico
 // @namespace    https://github.com/Daviduss01/geofs-alarms
-// @version      0.1.8
+// @version      0.1.9
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
 // @author       Daviduss01, PEK-97, python-coding-404, Supreme1707, Winston_Sung
 // @match        https://*.geo-fs.com/geofs.php*
@@ -91,22 +91,93 @@
             this.setAniValOld(a, b);
 
             let hasAudioOn = (unsafeWindow.geofs.isPaused() !== true && unsafeWindow.audio.on);
-            let hasAltTooLow = (
-                unsafeWindow.geofs.animation.values.climbrate < -3000 &&
-                unsafeWindow.geofs.animation.values.climbrate > -5000 &&
-                unsafeWindow.geofs.animation.values.kias > 180 &&
-                unsafeWindow.geofs.relativeAltitude < 2000
-            );
+            let kias = unsafeWindow.geofs.animation.values.kias;
+            let climbrate = unsafeWindow.geofs.animation.values.climbrate;
+            let relativeAltitude = unsafeWindow.geofs.relativeAltitude;
+            let hasAltTooLow = false;
             let hasOverbankedAng = (
                 unsafeWindow.geofs.animation.values.aroll > 35 ||
                 unsafeWindow.geofs.animation.values.aroll < -35
             );
             let hasOversped = unsafeWindow.geofs.animation.values.kias >= 350;
-            let hasSinkRate = (
-                unsafeWindow.geofs.animation.values.climbrate < -8000 &&
-                unsafeWindow.geofs.animation.values.kias > 225
-            );
+            let hasSinkRate = false;
             let hasStalled = unsafeWindow.geofs.aircraft.instance.stalling;
+
+            // https://commons.wikimedia.org/wiki/File:FAA_excessive_sink_rate_graph.svg
+            if (climbrate < -1200 && kias > 180) {
+                if (
+                    climbrate >= -1550 &&
+                    relativeAltitude >= 200 &&
+                    relativeAltitude < 200 + (-climbrate - 1200) * ((450 - 200) / (1550 - 1200))
+                ) {
+                    if (kias >= 225) {
+                        hasSinkRate = true;
+                    }
+                } else if (
+                    climbrate >= -1650 &&
+                    relativeAltitude >= 75 &&
+                    relativeAltitude < 450 + (-climbrate - 1550) * ((500 - 450) / (1650 - 1550))
+                ) {
+                    if (
+                        kias >= 225 &&
+                        relativeAltitude >= 200 + (-climbrate - 1550) * ((350 - 200) / (1650 - 1550))
+                    ) {
+                        hasSinkRate = true;
+                    } else {
+                        hasAltTooLow = true;
+                    }
+                } else if (
+                    climbrate >= -2000 &&
+                    relativeAltitude >= 75 &&
+                    relativeAltitude < 500 + (-climbrate - 1650) * ((700 - 500) / (2000 - 1650))
+                ) {
+                    if (
+                        kias >= 225 &&
+                        relativeAltitude >= 350 + (-climbrate - 1650) * ((525 - 350) / (2000 - 1650))
+                    ) {
+                        hasSinkRate = true;
+                    } else {
+                        hasAltTooLow = true;
+                    }
+                } else if (
+                    climbrate >= -6000 &&
+                    relativeAltitude >= 75 - (-climbrate - 2000) * ((75 - 50) / (6000 - 2000)) &&
+                    relativeAltitude < 700 + (-climbrate - 2000) * ((3200 - 700) / (6000 - 2000))
+                ) {
+                    if (
+                        kias >= 225 &&
+                        relativeAltitude >= 525 + (-climbrate - 2000) * ((2500 - 525) / (6000 - 2000))
+                    ) {
+                        hasSinkRate = true;
+                    } else {
+                        hasAltTooLow = true;
+                    }
+                } else if (
+                    climbrate >= -10000 &&
+                    relativeAltitude >= 50 - (-climbrate - 6000) * (50 / (10000 - 6000)) &&
+                    relativeAltitude < 3200 + (-climbrate - 6000) * ((4850 - 3200) / (10000 - 6000))
+                ) {
+                    if (
+                        kias >= 225 &&
+                        relativeAltitude >= 2500 + (-climbrate - 6000) * ((3850 - 2500) / (10000 - 6000))
+                    ) {
+                        hasSinkRate = true;
+                    } else {
+                        hasAltTooLow = true;
+                    }
+                } else if (
+                    relativeAltitude < 4850 + (-climbrate - 10000) * ((5100 - 4850) / (10550 - 10000))
+                ) {
+                    if (
+                        kias >= 225 &&
+                        relativeAltitude >= 3850 + (-climbrate - 10000) * ((4050 - 3850) / (10550 - 10000))
+                    ) {
+                        hasSinkRate = true;
+                    } else {
+                        hasAltTooLow = true;
+                    }
+                }
+            }
 
             if (hasAudioOn) {
                 if (hasAltTooLow && (!prevAltTooLow || !prevAudioOn)) {
