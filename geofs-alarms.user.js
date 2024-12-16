@@ -2,7 +2,7 @@
 // @name         GeoFS-Alarms
 // @icon         https://www.geo-fs.com/favicon.ico
 // @namespace    https://github.com/Daviduss01/geofs-alarms
-// @version      0.1.5
+// @version      0.1.6
 // @description  Adds cockpit alarm sounds to GeoFS online flight simulator
 // @author       PEK-97, Supreme1707, Winston_Sung, Daviduss01
 // @match        https://*.geo-fs.com/geofs.php*
@@ -66,22 +66,6 @@
     );
 
     function main() {
-        // Monkey-patch the setVisibility method
-        // - Stalling
-        let prevStalled = false;
-        unsafeWindow.ui.hud.stall.setVisOld = unsafeWindow.ui.hud.stall.setVisibility;
-        unsafeWindow.ui.hud.stall.setVisibility = function (a) {
-            if (a && unsafeWindow.geofs.isPaused() !== true && unsafeWindow.audio.on && !prevStalled) {
-                stickShake.volume = unsafeWindow.geofs.preferences.volume;
-                stickShake.play();
-            } else {
-                stickShake.pause();
-                stickShake.currentTime = 0;
-            }
-            prevStalled = a;
-            this.setVisOld(a);
-        }
-
         // Monkey-patch the setAnimationValue method
         // - Altitude too low
         // - Overbanked angle
@@ -93,6 +77,7 @@
         let prevOverbankedAng = false;
         let prevOversped = false;
         let prevSinkRate = false;
+        let prevStalled = false;
         unsafeWindow.flight.setAniValOld = unsafeWindow.flight.setAnimationValues;
         unsafeWindow.flight.setAnimationValues = function(a, b) {
             this.setAniValOld(a, b);
@@ -113,15 +98,17 @@
                 unsafeWindow.geofs.animation.values.climbrate < -8000 &&
                 unsafeWindow.geofs.animation.values.kias > 225
             );
+            let hasStalled = unsafeWindow.geofs.aircraft.instance.stalling;
 
             if (hasAudioOn) {
-                if (hasAltTooLow && (!prevAltTooLow || !prevAudioOn)){
+                if (hasAltTooLow && (!prevAltTooLow || !prevAudioOn)) {
                     terainPullUpClacker.volume = unsafeWindow.geofs.preferences.volume;
                     terainPullUpClacker.play();
-                } else if (!hasAltTooLow && prevAltTooLow){
+                } else if (!hasAltTooLow && prevAltTooLow) {
                     terainPullUpClacker.pause();
                     terainPullUpClacker.currentTime = 0;
                 }
+
                 if (hasOverbankedAng && (!prevOverbankedAng || !prevAudioOn)) {
                     bankangleClacker.volume = unsafeWindow.geofs.preferences.volume;
                     bankangleClacker.play();
@@ -129,19 +116,29 @@
                     bankangleClacker.pause();
                     bankangleClacker.currentTime = 0;
                 }
-                if (hasOversped && (!prevOversped || !prevAudioOn)){
+
+                if (hasOversped && (!prevOversped || !prevAudioOn)) {
                     overspeedClacker.volume = unsafeWindow.geofs.preferences.volume;
                     overspeedClacker.play();
                 } else if (!hasOversped && prevOversped) {
                     overspeedClacker.pause();
                     overspeedClacker.currentTime = 0;
                 }
-                if (hasSinkRate && (!prevSinkRate || !prevAudioOn)){
+
+                if (hasSinkRate && (!prevSinkRate || !prevAudioOn)) {
                     sinkratePullUpClacker.volume = unsafeWindow.geofs.preferences.volume;
                     sinkratePullUpClacker.play();
-                } else if (!hasSinkRate && prevSinkRate){
+                } else if (!hasSinkRate && prevSinkRate) {
                     sinkratePullUpClacker.pause();
                     sinkratePullUpClacker.currentTime = 0;
+                }
+
+                if (hasStalled && (!prevStalled || !prevAudioOn)) {
+                    stickShake.volume = unsafeWindow.geofs.preferences.volume;
+                    stickShake.play();
+                } else if (!hasStalled && prevStalled) {
+                    stickShake.pause();
+                    stickShake.currentTime = 0;
                 }
             } else if (!hasAudioOn && prevAudioOn) {
                 terainPullUpClacker.pause();
@@ -161,6 +158,7 @@
             prevOverbankedAng = hasOverbankedAng;
             prevOversped = hasOversped;
             prevSinkRate = hasSinkRate;
+            prevStalled = hasStalled;
         }
     }
 })();
